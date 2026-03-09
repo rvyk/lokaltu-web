@@ -10,12 +10,12 @@ interface MapAutoCentererProps {
 }
 
 export function MapAutoCenterer({ latitude, longitude }: MapAutoCentererProps) {
-  const { map } = useMap();
+  const { map, isLoaded } = useMap();
   const searchParams = useSearchParams();
   const lastCoords = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !isLoaded) return;
 
     const queryLat = searchParams.get("lat");
     const queryLng = searchParams.get("lng");
@@ -43,7 +43,7 @@ export function MapAutoCenterer({ latitude, longitude }: MapAutoCentererProps) {
       });
       lastCoords.current = "user";
     }
-  }, [latitude, longitude, map, searchParams]);
+  }, [latitude, longitude, map, isLoaded, searchParams]);
 
   return null;
 }

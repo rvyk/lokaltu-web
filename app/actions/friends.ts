@@ -85,8 +85,33 @@ export async function sendFriendRequest(receiverId: string) {
   });
 
   if (existing) {
-    if (existing.status === "ACCEPTED") throw new Error("Already friends");
-    if (existing.status === "PENDING") throw new Error("Request already sent");
+    if (existing.status === "ACCEPTED") return; // already friends, no-op
+
+    if (existing.status === "PENDING") {
+      // They already sent ME a request → auto-accept (mutual interest)
+      if (existing.senderId === receiverId && existing.receiverId === user.id) {
+        await prisma.friendRequest.update({
+          where: { id: existing.id },
+          data: { status: "ACCEPTED" },
+        });
+        const me = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { name: true },
+        });
+        await prisma.notification.create({
+          data: {
+            userId: receiverId,
+            title: "Zaproszenie zaakceptowane",
+            message: `${me?.name ?? "Ktoś"} zaakceptował(a) Twoje zaproszenie do znajomych!`,
+          },
+        });
+        revalidatePath("/homescreen/profile/friends");
+        return;
+      }
+      // I already sent them a request → silently ignore (no client error)
+      return;
+    }
+
     // REJECTED — allow re-sending by updating status back to PENDING
     if (existing.status === "REJECTED") {
       await prisma.friendRequest.update({
@@ -97,11 +122,6 @@ export async function sendFriendRequest(receiverId: string) {
       return;
     }
   }
-
-  const receiver = await prisma.user.findUnique({
-    where: { id: receiverId },
-    select: { name: true },
-  });
 
   const sender = await prisma.user.findUnique({
     where: { id: user.id },
