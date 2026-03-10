@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import CompareSection from "./_components/compare-section";
 
 export default async function ProfilePage() {
   const user = await currentUser();
@@ -103,6 +104,20 @@ export default async function ProfilePage() {
             </Link>
           ))}
         </div>
+
+        {/* Compare with friend */}
+        {userDb && (
+          <div className="space-y-3 pt-2">
+            <h2 className="text-sm font-black tracking-widest text-gray-400 uppercase">
+              Porównaj ze znajomym
+            </h2>
+            <p className="text-sm text-gray-400">
+              Pokaż swój kod QR lub zeskanuj czyjś, aby porównać statystyki
+              bez dodawania do znajomych.
+            </p>
+            <CompareSection userId={userDb.id} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,27 +10,35 @@ export const dynamic = "force-dynamic";
 
 export default async function UserProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string }>;
+  searchParams: Promise<{ compare?: string }>;
 }) {
   const { userId } = await params;
+  const { compare } = await searchParams;
+  const isCompareMode = compare === "true";
   const profile = await getUserPublicProfile(userId);
 
   if (!profile) {
     notFound();
   }
 
-  if (profile.isMe) {
+  if (profile.isMe && !isCompareMode) {
     redirect("/homescreen/profile");
   }
 
   const level = getLevel(profile.lokaltuPoints);
 
+  const backHref = isCompareMode
+    ? "/homescreen/profile"
+    : "/homescreen/profile/friends";
+
   return (
     <div className="relative min-h-screen bg-white pt-24">
       <div className="absolute top-0 left-0 h-50 w-full bg-[linear-gradient(249.58deg,#61F681_0%,#49BF12_49.21%,#DBC443_97.83%)] pt-8">
         <div className="mb-2 flex items-center gap-2 px-6 pt-6">
-          <Link href="/homescreen/profile/friends">
+          <Link href={backHref}>
             <ChevronLeft className="h-6 w-6 text-[#E3F8D9]" />
           </Link>
           <h1 className="truncate text-2xl font-semibold text-[#E3F8D9]">
@@ -69,12 +77,22 @@ export default async function UserProfilePage({
           </div>
         </div>
 
-        {/* Friendship action */}
-        <FriendshipButton
-          userId={profile.id}
-          initialStatus={profile.friendStatus}
-          initialRequestId={profile.requestId}
-        />
+        {/* Friendship action - hidden in compare mode */}
+        {!isCompareMode && (
+          <FriendshipButton
+            userId={profile.id}
+            initialStatus={profile.friendStatus}
+            initialRequestId={profile.requestId}
+          />
+        )}
+
+        {isCompareMode && (
+          <div className="rounded-2xl border border-[#84cc16]/20 bg-[#f0fce8] p-4 text-center">
+            <p className="text-sm font-medium text-[#49BF12]">
+              Tryb porównania - przeglądasz profil bez dodawania do znajomych
+            </p>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
