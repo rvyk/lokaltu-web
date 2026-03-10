@@ -108,19 +108,6 @@ export async function getUserPublicProfile(targetUserId: string) {
   };
 }
 
-
-  if (!user) {
-    return null;
-  }
-
-  const userDb = await prisma.user.findFirst({
-    where: {
-      id: user.id,
-    },
-  });
-  return userDb;
-}
-
 export async function completeProfile(bagId?: string) {
   const user = await currentUser();
 

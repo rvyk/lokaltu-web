@@ -138,6 +138,115 @@ export function ClusterHandler({
     [map, clusterer, clusters],
   );
 
+  // Check if the selected place is visible as an unclustered marker
+  const selectedPlaceInClusters = selectedPlaceId
+    ? clusters.some(
+        (c) => !c.properties.cluster && c.properties.placeId === selectedPlaceId,
+      )
+    : false;
+
+  // If the selected place is NOT in the visible unclustered markers
+  // (e.g. still flying to it, or it's inside a cluster), render it as a standalone marker
+  const standaloneSelectedPlace =
+    selectedPlaceId && !selectedPlaceInClusters
+      ? places.find((p) => p.id === selectedPlaceId)
+      : null;
+
+  const renderPlaceMarker = (place: MapPlace, isStandalone = false) => (
+    <MapMarker
+      key={isStandalone ? `standalone-${place.id}` : place.id}
+      longitude={place.longitude}
+      latitude={place.latitude}
+      onClick={(e) => {
+        e.stopPropagation();
+        console.log("[Map] Clicked place:", place.id);
+        setSelectedPlaceId(
+          selectedPlaceId === place.id ? null : place.id,
+        );
+      }}
+    >
+      <MarkerContent className="animate-in fade-in zoom-in duration-300">
+        <div
+          className={cn(
+            "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full shadow-lg ring-2 ring-white transition-all hover:scale-110 active:scale-95",
+            place.verified ? "bg-main" : "bg-amber-500 ring-amber-200",
+          )}
+        >
+          <MapPin className="h-5 w-5 text-white" />
+        </div>
+      </MarkerContent>
+      {selectedPlaceId === place.id && (
+        <MarkerPopup className="max-w-75 min-w-60 rounded-2xl! p-0! shadow-xl!">
+          <div className="animate-in fade-in slide-in-from-bottom-2 overflow-hidden rounded-2xl bg-white duration-200">
+            {place.image && CDN_URL && (
+              <div className="relative h-32 w-full">
+                <Image
+                  src={`${CDN_URL}/${place.image}`}
+                  alt={place.name}
+                  fill
+                  className="object-cover"
+                />
+                {!place.verified && (
+                  <div className="absolute inset-x-0 bottom-0 bg-amber-500/90 py-1 text-center text-[10px] font-black tracking-widest text-white uppercase backdrop-blur-sm">
+                    Oczekuje na weryfikację
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col gap-0.5">
+                  <h3 className="text-base leading-tight font-bold text-neutral-900">
+                    {place.name}
+                  </h3>
+                  {!place.verified && !place.image && (
+                    <span className="text-[10px] font-black tracking-wider text-amber-500 uppercase">
+                      Weryfikacja...
+                    </span>
+                  )}
+                </div>
+                <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-neutral-300" />
+              </div>
+
+              <p className="mt-1 text-xs font-medium text-neutral-500">
+                {place.address}
+              </p>
+
+              {place.description && (
+                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-neutral-600">
+                  {place.description}
+                </p>
+              )}
+
+              <div className="mt-4 flex flex-col gap-2">
+                <div className="flex items-center justify-between border-t border-neutral-50 pt-3">
+                  <span className="inline-block rounded-lg bg-[#49BF12]/10 px-2.5 py-1 text-[10px] font-black tracking-tight text-[#49BF12] uppercase">
+                    {place.category}
+                  </span>
+                  {!place.verified && (
+                    <span className="text-[9px] font-bold text-amber-600">
+                      Tylko dla Ciebie
+                    </span>
+                  )}
+                </div>
+
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-main mt-1 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black text-white transition-all hover:opacity-95 active:scale-[0.98]"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Prowadź do celu
+                </a>
+              </div>
+            </div>
+          </div>
+        </MarkerPopup>
+      )}
+    </MapMarker>
+  );
+
   return (
     <>
       {clusters.map((cluster) => {
@@ -160,102 +269,12 @@ export function ClusterHandler({
         const place = places.find((p) => p.id === cluster.properties.placeId);
         if (!place) return null;
 
-        return (
-          <MapMarker
-            key={place.id}
-            longitude={place.longitude}
-            latitude={place.latitude}
-            onClick={(e) => {
-              // Prevent map click handler if any
-              e.stopPropagation();
-              console.log("[Map] Clicked place:", place.id);
-              setSelectedPlaceId(
-                selectedPlaceId === place.id ? null : place.id,
-              );
-            }}
-          >
-            <MarkerContent className="animate-in fade-in zoom-in duration-300">
-              <div
-                className={cn(
-                  "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full shadow-lg ring-2 ring-white transition-all hover:scale-110 active:scale-95",
-                  place.verified ? "bg-main" : "bg-amber-500 ring-amber-200",
-                )}
-              >
-                <MapPin className="h-5 w-5 text-white" />
-              </div>
-            </MarkerContent>
-            {selectedPlaceId === place.id && (
-              <MarkerPopup className="max-w-75 min-w-60 rounded-2xl! p-0! shadow-xl!">
-                <div className="animate-in fade-in slide-in-from-bottom-2 overflow-hidden rounded-2xl bg-white duration-200">
-                  {place.image && CDN_URL && (
-                    <div className="relative h-32 w-full">
-                      <Image
-                        src={`${CDN_URL}/${place.image}`}
-                        alt={place.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {!place.verified && (
-                        <div className="absolute inset-x-0 bottom-0 bg-amber-500/90 py-1 text-center text-[10px] font-black tracking-widest text-white uppercase backdrop-blur-sm">
-                          Oczekuje na weryfikację
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex flex-col gap-0.5">
-                        <h3 className="text-base leading-tight font-bold text-neutral-900">
-                          {place.name}
-                        </h3>
-                        {!place.verified && !place.image && (
-                          <span className="text-[10px] font-black tracking-wider text-amber-500 uppercase">
-                            Weryfikacja...
-                          </span>
-                        )}
-                      </div>
-                      <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-neutral-300" />
-                    </div>
-
-                    <p className="mt-1 text-xs font-medium text-neutral-500">
-                      {place.address}
-                    </p>
-
-                    {place.description && (
-                      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-neutral-600">
-                        {place.description}
-                      </p>
-                    )}
-
-                    <div className="mt-4 flex flex-col gap-2">
-                      <div className="flex items-center justify-between border-t border-neutral-50 pt-3">
-                        <span className="inline-block rounded-lg bg-[#49BF12]/10 px-2.5 py-1 text-[10px] font-black tracking-tight text-[#49BF12] uppercase">
-                          {place.category}
-                        </span>
-                        {!place.verified && (
-                          <span className="text-[9px] font-bold text-amber-600">
-                            Tylko dla Ciebie
-                          </span>
-                        )}
-                      </div>
-
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-main mt-1 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black text-white transition-all hover:opacity-95 active:scale-[0.98]"
-                      >
-                        <Navigation className="h-4 w-4" />
-                        Prowadź do celu
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </MarkerPopup>
-            )}
-          </MapMarker>
-        );
+        return renderPlaceMarker(place);
       })}
+
+      {/* Render selected place as standalone marker when it's not visible in clusters
+          (e.g. during flyTo animation or when hidden inside a cluster) */}
+      {standaloneSelectedPlace && renderPlaceMarker(standaloneSelectedPlace, true)}
     </>
   );
 }

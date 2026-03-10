@@ -47,7 +47,7 @@ export function MapClient() {
   // Sync selected place with query param - response to navigation from feed
   useEffect(() => {
     const id = searchParams.get("id");
-    if (id && id !== lastInjectedId.current) {
+    if (id) {
       setSelectedPlaceId(id);
       lastInjectedId.current = id;
     }
