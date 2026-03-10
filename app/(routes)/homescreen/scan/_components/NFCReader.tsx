@@ -59,7 +59,12 @@ export default function NFCReader() {
     setErrorMsg("");
     setResult(null);
 
-    const { hasBag } = await checkUserBag();
+    const { hasBag, error } = await checkUserBag();
+    if (error) {
+      handleError(error);
+      return;
+    }
+
     if (!hasBag) {
       setStep("no_bag");
       return;

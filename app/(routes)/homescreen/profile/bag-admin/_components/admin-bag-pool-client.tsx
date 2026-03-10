@@ -108,11 +108,11 @@ export default function AdminBagPoolClient() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3">
           <Button
             onClick={handleAddByScan}
             disabled={scanning || isPending}
-            className="h-14 rounded-2xl bg-[#84cc16] text-base font-bold text-white"
+            className="h-14 w-full rounded-2xl bg-[#84cc16] text-base font-bold text-white"
           >
             {scanning || isPending ? (
               <>
@@ -128,10 +128,9 @@ export default function AdminBagPoolClient() {
           </Button>
 
           <Button
-            variant="outline"
             onClick={() => startTransition(() => void refreshBags())}
             disabled={isPending || scanning}
-            className="h-14 rounded-2xl"
+            className="h-14 w-full rounded-2xl border-2 border-[#84cc16]/20 bg-white text-base font-bold text-[#49BF12] hover:bg-[#f0fce8]"
           >
             <RefreshCw className="h-5 w-5" />
             Odswiez

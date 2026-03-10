@@ -25,21 +25,12 @@ export default async function ProfilePage() {
   const points = userDb?.lokaltuPoints ?? 0;
   const level = getLevel(points);
 
-  const menuItems = [
+  const mainMenuItems = [
     {
       label: "Moja torba NFC",
       icon: <Briefcase className="h-6 w-6 text-gray-800" />,
       href: "/homescreen/profile/bag",
     },
-    ...(isAdmin
-      ? [
-          {
-            label: "Pula toreb NFC",
-            icon: <Shield className="h-6 w-6 text-gray-800" />,
-            href: "/homescreen/profile/bag-admin",
-          },
-        ]
-      : []),
     {
       label: "Zdobyte odznaki",
       icon: <Award className="h-6 w-6 text-gray-800" />,
@@ -66,6 +57,16 @@ export default async function ProfilePage() {
       href: "/homescreen/profile/settings",
     },
   ];
+
+  const adminMenuItems = isAdmin
+    ? [
+        {
+          label: "Pula toreb NFC",
+          icon: <Shield className="h-6 w-6 text-gray-800" />,
+          href: "/homescreen/profile/bag-admin",
+        },
+      ]
+    : [];
 
   return (
     <div className="relative min-h-screen bg-white pt-24">
@@ -104,7 +105,7 @@ export default async function ProfilePage() {
         </div>
 
         <div className="flex flex-col divide-y divide-gray-50">
-          {menuItems.map((item, index) => (
+          {mainMenuItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
@@ -122,6 +123,33 @@ export default async function ProfilePage() {
             </Link>
           ))}
         </div>
+
+        {isAdmin && (
+          <div className="space-y-2 pt-2">
+            <h2 className="text-sm font-black tracking-widest text-gray-400 uppercase">
+              Administrator
+            </h2>
+            <div className="flex flex-col divide-y divide-gray-50 rounded-2xl border border-gray-100 px-1">
+              {adminMenuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group flex cursor-pointer items-center justify-between py-5 transition-all active:opacity-60"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 transition-colors group-active:bg-gray-100">
+                      {item.icon}
+                    </div>
+                    <span className="text-lg font-semibold tracking-tight text-gray-700">
+                      {item.label}
+                    </span>
+                  </div>
+                  <ChevronRight className="h-6 w-6 stroke-[2.5px] text-[#84cc16]" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {userDb && (
           <div className="space-y-3 pt-2">

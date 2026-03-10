@@ -40,12 +40,35 @@ export async function verifyBag(
 /**
  * Checks if the current user has a bagId assigned.
  */
-export async function checkUserBag(): Promise<{ hasBag: boolean }> {
-  const user = await currentUser();
-  if (!user) return { hasBag: false };
+export async function checkUserBag(): Promise<{
+  hasBag: boolean;
+  error?: string;
+}> {
+  try {
+    const user = await currentUser();
+    if (!user) return { hasBag: false };
 
-  const bag = await prisma.bag.findFirst({ where: { userId: user.id } });
-  return { hasBag: !!bag };
+    const userDb = await prisma.user.findUnique({ where: { id: user.id } });
+    if (!userDb) return { hasBag: false };
+
+    const normalizedBagId = userDb.bagId?.trim().toLowerCase();
+
+    const bag = await prisma.bag.findFirst({
+      where: {
+        OR: [
+          { userId: user.id },
+          ...(normalizedBagId ? [{ nfcTagId: normalizedBagId }] : []),
+        ],
+      },
+    });
+
+    return { hasBag: !!bag };
+  } catch {
+    return {
+      hasBag: false,
+      error: "Nie udało się sprawdzić przypisanej torby. Spróbuj ponownie.",
+    };
+  }
 }
 
 /**
