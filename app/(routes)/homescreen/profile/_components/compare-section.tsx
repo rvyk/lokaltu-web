@@ -87,8 +87,7 @@ export default function CompareSection({ userId }: { userId: string }) {
             </p>
             <DrawerClose asChild>
               <Button
-                variant="outline"
-                className="h-12 w-full rounded-2xl text-base font-semibold"
+                className="h-12 w-full rounded-2xl border-2 border-[#84cc16]/20 bg-white text-base font-bold text-[#49BF12] hover:bg-[#f0fce8]"
               >
                 Zamknij
               </Button>
