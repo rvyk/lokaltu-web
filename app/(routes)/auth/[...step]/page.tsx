@@ -5,31 +5,17 @@ import Image from "next/image";
 import { redirect, RedirectType } from "next/navigation";
 import AuthClient from "./_components/auth-client";
 
-import { headers } from "next/headers";
-
 export default async function AuthPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ step: string[] }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { step } = await params;
-  const { __clerk_handover_token } = await searchParams;
   const currentStep = step?.[0] || "sign-up";
   const user = await currentUser();
-  const userAgent = (await headers()).get("user-agent") || "";
-  const isNativeApp = userAgent.includes("Lokaltu-Native-Android");
 
-  if (
-    user &&
-    currentStep !== "return-to-app" &&
-    currentStep !== "verify-second-factor"
-  ) {
-    if (isNativeApp) {
-      return redirect("/", RedirectType.replace);
-    }
-    return redirect("/auth/return-to-app", RedirectType.replace);
+  if (user && currentStep !== "verify-second-factor") {
+    return redirect("/", RedirectType.replace);
   }
 
   return (
@@ -46,11 +32,7 @@ export default async function AuthPage({
 
       <div className="grid min-h-screen w-full place-items-center bg-white/40 px-6 py-12 backdrop-blur-sm">
         <div className="w-full max-w-md">
-          <AuthClient
-            isNativeApp={isNativeApp}
-            step={__clerk_handover_token ? "sync" : currentStep}
-            token={__clerk_handover_token as string}
-          />
+          <AuthClient step={currentStep} />
         </div>
       </div>
     </div>
