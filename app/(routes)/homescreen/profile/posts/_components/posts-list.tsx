@@ -85,10 +85,7 @@ export function MyPostsList({
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="line-clamp-2 text-xl font-black tracking-tight text-gray-800">
-                {post.title}
-              </h3>
-              <p className="mt-1 text-[10px] font-bold tracking-tight text-[#84cc16] uppercase">
+              <p className="text-[10px] font-bold tracking-tight text-[#84cc16] uppercase">
                 {format(new Date(post.createdAt), "d MMMM yyyy", {
                   locale: pl,
                 })}

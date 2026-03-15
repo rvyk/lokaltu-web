@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
@@ -19,20 +18,18 @@ import { useState, useTransition } from "react";
 
 export function CreatePostDialog({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !content) return;
+    if (!content) return;
 
     startTransition(async () => {
       try {
-        await createPost(title, content);
+        await createPost(content);
         setOpen(false);
-        setTitle("");
         setContent("");
         router.refresh();
       } catch (error) {
@@ -70,23 +67,6 @@ export function CreatePostDialog({ children }: { children?: React.ReactNode }) {
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="post-title"
-                  className="ml-1 text-sm font-bold tracking-widest text-neutral-700 uppercase"
-                >
-                  Tytuł postu
-                </Label>
-                <Input
-                  id="post-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="np. Moja ekologiczna sobota"
-                  className="border-neutral-100 bg-neutral-50/50 focus-visible:ring-[#44d021]"
-                  required
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label
                   htmlFor="post-content"
