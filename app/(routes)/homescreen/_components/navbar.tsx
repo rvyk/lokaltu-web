@@ -11,7 +11,7 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
   const path = usePathname();
   return (
-    <div className="fixed bottom-0 left-0 grid w-screen grid-cols-5 justify-between border-t bg-white px-6 pt-2 pb-4">
+    <div className="fixed bottom-0 left-0 z-50 grid w-screen grid-cols-5 justify-between border-t bg-white px-6 pt-2 pb-4">
       {[
         {
           name: "Główna",
