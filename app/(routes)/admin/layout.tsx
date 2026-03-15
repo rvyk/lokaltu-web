@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { Bell, FileText, Home, MapPin, Trophy, Users } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -12,6 +13,14 @@ const navItems = [
   { href: "/admin/achievements", label: "Osiągnięcia", icon: Trophy },
   { href: "/admin/notifications", label: "Powiadomienia", icon: Bell },
 ];
+
+export const metadata: Metadata = {
+  title: "Panel administracyjny",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AdminLayout({
   children,

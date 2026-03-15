@@ -2,8 +2,17 @@ import noise from "@/app/assets/sign-in/noise.png";
 import BgPhotos from "@/components/bg-photos";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { redirect, RedirectType } from "next/navigation";
 import AuthClient from "./_components/auth-client";
+
+export const metadata: Metadata = {
+  title: "Logowanie i rejestracja",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AuthPage({
   params,
